@@ -7,8 +7,8 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "outDir": "dist",
-    "rootDir": ".",
+    "outDir": "./dist",
+    "rootDir": "./src",
     "types": ["node"]
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "prisma/**/*.ts"],
