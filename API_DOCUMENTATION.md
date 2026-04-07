@@ -1,44 +1,23 @@
-# Financial Dashboard System - API Documentation
-
-Hey! 👋 This is a guide to using the Financial Dashboard API. Don't worry, it's simpler than it looks!
+# Financial Dashboard API Documentation
 
 ## Base URL
 ```
-Local Development: http://localhost:4000/api
-Production (Render): https://financial-dashboard-system-ltzw.onrender.com/api
+Local: http://localhost:4000/api
+Production: https://financial-dashboard-system-ltzw.onrender.com/api
 ```
 
-## How Login Works 🔐
-After you login, you'll get a special code (JWT token). Use this code for all future requests:
+## Authentication
 ```
-Header: Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
-## How Responses Look 📨
-Success:
-```json
-{
-  "success": true,
-  "data": { /* your data here */ }
-}
-```
-
-Oops! Something went wrong:
-```json
-{
-  "success": false,
-  "error": "What went wrong"
-}
+Header: Authorization: Bearer <token>
 ```
 
 ---
 
-## 🏥 Health Check
-Just checking if the server is awake...
+## Health Check
 
 **GET** `/health`
 
-**Response:**
+Response (200):
 ```json
 {
   "success": true,
@@ -48,28 +27,20 @@ Just checking if the server is awake...
 
 ---
 
-## 🔐 Auth - Let's Get You In (`/api/auth`)
+## Auth Endpoints
 
-### 1️⃣ Sign Up (Register)
+### Register
 **POST** `/auth/register`
-
-Create your account!
-
-**What to send:**
+Request:
 ```json
 {
   "email": "rahul.sharma@gmail.com",
   "name": "Rahul Sharma",
-  "password": "MyPass@2024"
+  "password": "SecurePass123"
 }
 ```
 
-**Rules:**
-- Email: Must be a real email
-- Name: At least 2 letters, max 100
-- Password: Minimum 8 letters, needs 1 CAPITAL letter + 1 number
-
-**What you get back (201 - New account created!):**
+Response (201):
 ```json
 {
   "success": true,
@@ -84,24 +55,19 @@ Create your account!
 }
 ```
 
-**Copy this token!** You'll need it for everything else. 👆
-
 ---
 
-### 2️⃣ Login
+### Login
 **POST** `/auth/login`
-
-Welcome back! Get your token to access stuff.
-
-**Send this:**
+Request:
 ```json
 {
   "email": "rahul.sharma@gmail.com",
-  "password": "MyPass@2024"
+  "password": "SecurePass123"
 }
 ```
 
-**You get this (200 - All good!):**
+Response (200):
 ```json
 {
   "success": true,
@@ -118,16 +84,11 @@ Welcome back! Get your token to access stuff.
 
 ---
 
-## 👤 User Stuff (`/api/users`)
+## User Endpoints
 
-### 1️⃣ See Your Profile
+### Get Current User
 **GET** `/users/me`
-
-Check your own details.
-
-**Need to add?** `Authorization: Bearer <your_token>`
-
-**Response (200 - Here's you!):**
+Response (200):
 ```json
 {
   "success": true,
@@ -145,26 +106,10 @@ Check your own details.
 
 ---
 
-### 2️⃣ See All Users (Admin Only)
-**GET** `/users`
+### List Users (Admin)
+**GET** `/users?page=1&limit=10&role=ADMIN`
 
-See everyone who's registered (only admins can do this).
-
-**Need?** Token + Admin access
-
-**Try this URL:**
-```
-http://localhost:4000/api/users?page=1&limit=10&role=ADMIN
-```
-
-| What's This? | Type | Default | What It Does |
-|---|---|---|---|
-| page | number | 1 | Which page? |
-| limit | number | 10 | How many per page? |
-| role | text | - | Filter by: ADMIN, ANALYST, VIEWER |
-| status | text | - | Filter by: ACTIVE, INACTIVE |
-
-**Response (200 - Here they are!):**
+Response (200):
 ```json
 {
   "success": true,
@@ -196,21 +141,16 @@ http://localhost:4000/api/users?page=1&limit=10&role=ADMIN
 
 ---
 
-### 3️⃣ Change Someone's Role (Admin Only)
+### Update User Role (Admin)
 **PATCH** `/users/:id/role`
-
-Like promoting someone from viewer to analyst.
-
-**Send this:**
+Request:
 ```json
 {
   "role": "ANALYST"
 }
 ```
 
-**Choices:** `ADMIN`, `ANALYST`, `VIEWER`
-
-**Response (200 - Done!):**
+Response (200):
 ```json
 {
   "success": true,
@@ -227,21 +167,16 @@ Like promoting someone from viewer to analyst.
 
 ---
 
-### 4️⃣ Turn User On/Off (Admin Only)
+### Update User Status (Admin)
 **PATCH** `/users/:id/status`
-
-Is the user active or inactive?
-
-**Send:**
+Request:
 ```json
 {
   "status": "INACTIVE"
 }
 ```
 
-**Pick:** `ACTIVE` or `INACTIVE`
-
-**Response (200 - Updated!):**
+Response (200):
 ```json
 {
   "success": true,
@@ -258,16 +193,11 @@ Is the user active or inactive?
 
 ---
 
-## 💰 Financial Records (`/api/records`)
+## Records Endpoints
 
-### 1️⃣ Add Money In/Out
+### Create Record (Admin)
 **POST** `/records`
-
-Log your income or expense. Like "Got salary from TCS" or "Spent ₹150 on chai".
-
-**Need?** Token + Admin access only
-
-**Send:**
+Request:
 ```json
 {
   "type": "INCOME",
@@ -278,33 +208,7 @@ Log your income or expense. Like "Got salary from TCS" or "Spent ₹150 on chai"
 }
 ```
 
-**Fields:**
-
-| Field | What? | Required | Notes |
-|-------|-------|----------|-------|
-| type | Income or Expense? | Yes | `INCOME` or `EXPENSE` |
-| category | What type? | Yes | See below 👇 |
-| amount | How much? | Yes | Number with max 2 decimals (₹ symbol not needed) |
-| description | Why/what for? | No | Explanation (0-500 letters) |
-| date | When? | Yes | Format: YYYY-MM-DD |
-
-**Income Types:**
-- `SALARY` - Regular job salary
-- `FREELANCE` - Side gigs 
-- `INVESTMENT` - Stock/crypto returns
-- `BONUS` - Diwali bonus, performance bonus
-- `OTHER_INCOME` - Random money that came
-
-**Expense Types:**
-- `FOOD` - Biryani, chai, lunch...
-- `TRANSPORT` - Auto, cab, petrol for car
-- `UTILITIES` - Electricity, water bill
-- `ENTERTAINMENT` - Netflix, movies, games
-- `HEALTHCARE` - Doctor, medicines
-- `EDUCATION` - Courses, books
-- `OTHER_EXPENSE` - Random spending
-
-**You get (201 - Saved!):**
+Response (201):
 ```json
 {
   "success": true,
@@ -321,32 +225,15 @@ Log your income or expense. Like "Got salary from TCS" or "Spent ₹150 on chai"
 }
 ```
 
+Categories - Income: SALARY, FREELANCE, INVESTMENT, BONUS, OTHER_INCOME
+Categories - Expense: FOOD, TRANSPORT, UTILITIES, ENTERTAINMENT, HEALTHCARE, EDUCATION, OTHER_EXPENSE
+
 ---
 
-### 2️⃣ Get Your Records
-**GET** `/records`
+### List Records
+**GET** `/records?page=1&limit=10&type=INCOME&sortBy=date`
 
-See all your income/expense logs. Can filter & sort!
-
-**Need?** Token + Analyst/Admin access
-
-**Example URL:**
-```
-http://localhost:4000/api/records?page=1&limit=10&type=INCOME&sortBy=date&sortOrder=desc
-```
-
-| Param | Type | Default | Meaning |
-|-------|------|---------|---------|
-| page | number | 1 | Page number |
-| limit | number | 10 | Per page (1-100) |
-| type | text | - | INCOME or EXPENSE |
-| category | text | - | Filter by category |
-| startDate | text | - | From date (YYYY-MM-DD) |
-| endDate | text | - | To date (YYYY-MM-DD) |
-| sortBy | text | date | Sort by: date, amount, or createdAt |
-| sortOrder | text | desc | asc (old first) or desc (new first) |
-
-**Response (200 - Here's your stuff!):**
+Response (200):
 ```json
 {
   "success": true,
@@ -366,7 +253,7 @@ http://localhost:4000/api/records?page=1&limit=10&type=INCOME&sortBy=date&sortOr
         "type": "EXPENSE",
         "category": "FOOD",
         "amount": 350.00,
-        "description": "Lunch biryani at Karachi Darbar",
+        "description": "Lunch at Karachi Darbar",
         "date": "2024-01-15",
         "createdAt": "2024-01-15T12:45:00Z"
       }
@@ -380,12 +267,9 @@ http://localhost:4000/api/records?page=1&limit=10&type=INCOME&sortBy=date&sortOr
 
 ---
 
-### 3️⃣ See One Record
+### Get Single Record
 **GET** `/records/:id`
-
-See details of one specific transaction.
-
-**Response (200 - Here's that one!):**
+Response (200):
 ```json
 {
   "success": true,
@@ -404,12 +288,9 @@ See details of one specific transaction.
 
 ---
 
-### 4️⃣ Edit a Record
+### Update Record (Admin)
 **PATCH** `/records/:id`
-
-Oops, wrong amount? Fix it! (Only admins can edit)
-
-**Send (just what's different):**
+Request:
 ```json
 {
   "amount": 55000.00,
@@ -417,7 +298,7 @@ Oops, wrong amount? Fix it! (Only admins can edit)
 }
 ```
 
-**It sends back:**
+Response (200):
 ```json
 {
   "success": true,
@@ -435,12 +316,9 @@ Oops, wrong amount? Fix it! (Only admins can edit)
 
 ---
 
-### 5️⃣ Delete a Record
+### Delete Record (Admin)
 **DELETE** `/records/:id`
-
-Remove a transaction (admin only).
-
-**Response (200 - It's gone!):**
+Response (200):
 ```json
 {
   "success": true,
@@ -452,26 +330,12 @@ Remove a transaction (admin only).
 
 ---
 
-## 📊 Dashboard (`/api/dashboard`)
+## Dashboard Endpoints
 
-Check your money stats! These endpoints don't edit, just show analytics.
+### Summary
+**GET** `/dashboard/summary?startDate=2024-01-01&endDate=2024-01-31`
 
-### 1️⃣ Summary - Quick Overview
-**GET** `/dashboard/summary`
-
-"How much did I earn/spend this month?"
-
-**Query:**
-```
-?startDate=2024-01-01&endDate=2024-01-31
-```
-
-| Param | Type | Notes |
-|-------|------|-------|
-| startDate | text | From date (YYYY-MM-DD) - optional |
-| endDate | text | To date (YYYY-MM-DD) - optional |
-
-**Response (200):**
+Response (200):
 ```json
 {
   "success": true,
@@ -484,21 +348,12 @@ Check your money stats! These endpoints don't edit, just show analytics.
 }
 ```
 
-**Translation:** Earned ₹150k, spent ₹35k, saved ₹115k in January. ✨
-
 ---
 
-### 2️⃣ Category Breakdown - Where's My Money?
-**GET** `/dashboard/category-breakdown`
+### Category Breakdown
+**GET** `/dashboard/category-breakdown?startDate=2024-01-01&endDate=2024-01-31`
 
-"How much on food? How much on transport?"
-
-**Query:**
-```
-?startDate=2024-01-01&endDate=2024-01-31
-```
-
-**Response (200):**
+Response (200):
 ```json
 {
   "success": true,
@@ -537,24 +392,12 @@ Check your money stats! These endpoints don't edit, just show analytics.
 }
 ```
 
-**Translation:** 
-- Food: ₹15k (20 purchases - ouch! 😅)
-- Transport: ₹8k (10 trips)
-- Entertainment: ₹12k (love biryani & Netflix!)
-
 ---
 
-### 3️⃣ Trends - Money Over Time
-**GET** `/dashboard/trends`
+### Trends
+**GET** `/dashboard/trends?startDate=2024-01-15&endDate=2024-01-20`
 
-"Show me day-by-day how much I earned vs spent"
-
-**Query:**
-```
-?startDate=2024-01-15&endDate=2024-01-20
-```
-
-**Response (200):**
+Response (200):
 ```json
 {
   "success": true,
@@ -587,31 +430,12 @@ Check your money stats! These endpoints don't edit, just show analytics.
 }
 ```
 
-**Translation:**
-- Jan 15: Got ₹50k salary 💰
-- Jan 16: Spent more than earned 😅
-- Jan 17: Freelance gig paid off! 🎉
-- Jan 18: Weekend shopping 🛍️ (oof)
-
 ---
 
-### 4️⃣ Recent Activity - Latest Transactions
-**GET** `/dashboard/recent`
+### Recent Activity
+**GET** `/dashboard/recent?limit=5&startDate=2024-01-01&endDate=2024-01-31`
 
-"Show me my last 5 transactions"
-
-**Query:**
-```
-?limit=5&startDate=2024-01-01&endDate=2024-01-31
-```
-
-| Param | Type | Default | What? |
-|-------|------|---------|-------|
-| limit | number | 5 | How many recent? (1-20) |
-| startDate | text | - | From date - optional |
-| endDate | text | - | To date - optional |
-
-**Response (200):**
+Response (200):
 ```json
 {
   "success": true,
@@ -630,7 +454,7 @@ Check your money stats! These endpoints don't edit, just show analytics.
       "type": "EXPENSE",
       "category": "FOOD",
       "amount": 850.00,
-      "description": "Dinner Party @ Tandoor Palace",
+      "description": "Dinner at Tandoor Palace",
       "date": "2024-01-20",
       "createdAt": "2024-01-20T14:10:00Z"
     },
@@ -660,17 +484,17 @@ Check your money stats! These endpoints don't edit, just show analytics.
 
 ## User Roles & Permissions
 
-| Role | Permissions |
-|------|-------------|
-| **ADMIN** | Full access to all endpoints. Can manage users, records, and view dashboard. |
-| **ANALYST** | Can view and create financial records. Can view dashboard analytics. Cannot manage users. |
-| **VIEWER** | Read-only access to dashboard analytics. Cannot create or modify records. Cannot manage users. |
+| Role | Access |
+|------|--------|
+| ADMIN | Full access - manage users, records, dashboard |
+| ANALYST | Create/view records, view dashboard |
+| VIEWER | View dashboard only |
 
 ---
 
 ## Error Responses
 
-### 400 Bad Request
+400 Bad Request:
 ```json
 {
   "success": false,
@@ -678,23 +502,23 @@ Check your money stats! These endpoints don't edit, just show analytics.
 }
 ```
 
-### 401 Unauthorized
+401 Unauthorized:
 ```json
 {
   "success": false,
-  "error": "Authentication token is missing or invalid"
+  "error": "Authentication token required"
 }
 ```
 
-### 403 Forbidden
+403 Forbidden:
 ```json
 {
   "success": false,
-  "error": "You do not have permission to access this resource"
+  "error": "Insufficient permissions"
 }
 ```
 
-### 404 Not Found
+404 Not Found:
 ```json
 {
   "success": false,
@@ -702,56 +526,11 @@ Check your money stats! These endpoints don't edit, just show analytics.
 }
 ```
 
-### 500 Internal Server Error
+500 Server Error:
 ```json
 {
   "success": false,
   "error": "Internal server error"
 }
 ```
-
----
-
-## Testing with Thunder Client / Postman
-
-### Example: Login and Get Token
-1. **POST** `http://localhost:4000/api/auth/login`
-   ```json
-   {
-     "email": "admin@example.com",
-     "password": "Admin@1234"
-   }
-   ```
-2. Copy the `token` from response
-3. Use it in subsequent requests: `Authorization: Bearer <token>`
-
-### Example: Create a Record
-1. **POST** `http://localhost:4000/api/records`
-2. Headers:
-   ```
-   Authorization: Bearer <your_token>
-   Content-Type: application/json
-   ```
-3. Body:
-   ```json
-   {
-     "type": "EXPENSE",
-     "category": "FOOD",
-     "amount": 45.50,
-     "description": "Lunch",
-     "date": "2024-01-15"
-   }
-   ```
-
----
-
-## Summary
-
-**Total Endpoints:** 14
-- Authentication: 2 endpoints
-- Users: 4 endpoints
-- Records: 5 endpoints
-- Dashboard: 4 endpoints
-
-All endpoints (except health check and auth register/login) require JWT authentication.
 
