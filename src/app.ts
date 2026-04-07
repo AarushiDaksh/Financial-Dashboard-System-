@@ -16,10 +16,13 @@ export function createApp() {
   app.use(cors());
   app.use(requestLogger);
 
-  app.get("/health", (_req, res) => {
+  app.get("/", (_req, res) => {
+  res.status(200).send("Financial Dashboard Backend is running");
+});
+  app.get("/aryan", (_req, res) => {
     res.status(200).json(successResponse({ ok: true }));
   });
-
+  
   app.use("/api/auth", authRouter);
   app.use("/api/users", usersRouter);
   app.use("/api/records", recordsRouter);
